@@ -6,7 +6,7 @@
   (`05_environment/requirements_pinned.txt`), then copy `01_data/*` and `02_code/*` into a single
   working directory (the scripts read/write from their working directory).
 - Full background: `Reproducibility_Note_R3.md`; headline statistics and all changes are listed in
-  `Supplementary_Materials.md` (S1–S11) and in the response letter.
+  `Supplementary_Materials.md` (S1–S7) and in the response letter.
 
 ## Environment
 - conda env `bishe` (python 3.9.25, xgboost 2.1.4, lightgbm 4.6.0, interpret 0.7.5, tensorflow-gpu

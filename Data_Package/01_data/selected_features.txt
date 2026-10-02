@@ -1,0 +1,10 @@
+PerCapitaGDP
+SecondaryIndustryShare
+TertiaryIndustryShare
+FiscalCapacityPerCapita
+ConstructionIntensity
+UrbanizationRate
+PatentsPerCapita
+EnergyIntensity
+PolicyCount
+PublicAwarenessIndex

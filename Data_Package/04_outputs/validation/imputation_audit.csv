@@ -1,0 +1,4 @@
+﻿file,n_rows,n_cols,n_cells,missing_cells,cells_changed_by_fill_steps
+merged_raw_data.csv,492,15,7380,0,0
+final_dataset_lpc_robust_scaled.csv,492,14,6888,0,0
+final_dataset_M2_PCA.csv,492,11,5412,0,0

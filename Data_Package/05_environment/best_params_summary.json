@@ -1,0 +1,62 @@
+{
+  "revision": "R3 (WMR-25-1259)",
+  "seed": 42,
+  "optuna_trials_per_outer_fold": 100,
+  "inner_min_train_years": 5,
+  "outer_min_train_years": 7,
+  "outer_fold_test_years": [
+    2018,
+    2019,
+    2020,
+    2021,
+    2022
+  ],
+  "target_transform": "log1p(per-capita MSW recycled volume)",
+  "search_spaces_per_model": {
+    "XGBoost": {
+      "learning_rate": "log-uniform [0.02, 0.1]",
+      "max_depth": "[3, 6]",
+      "reg_lambda": "log-uniform [10, 50]",
+      "subsample": "[0.7, 1]",
+      "colsample_bytree": "[0.7, 1]"
+    },
+    "LGBM": {
+      "learning_rate": "log-uniform [0.02, 0.1]",
+      "num_leaves": "[8, 31]",
+      "reg_lambda": "log-uniform [10, 50]",
+      "reg_alpha": "log-uniform [10, 30]",
+      "subsample": "[0.7, 1]",
+      "colsample_bytree": "[0.7, 1]"
+    },
+    "SVR (OHE)": {
+      "C": "[1, 10, 100]",
+      "gamma": "['scale', 0.1]",
+      "epsilon": [
+        "0.1"
+      ]
+    },
+    "DNN": {
+      "nh1": "[64, 128, 256]",
+      "nh2": "[32, 64, 128]",
+      "learning_rate": "log-uniform [1e-4, 1e-2]",
+      "dropout_rate": "[0.1, 0.4]",
+      "l2_reg": "log-uniform [1e-5, 1e-3]",
+      "batch_size": "[128, 256, 512]"
+    },
+    "EBM": {
+      "interactions": 0,
+      "learning_rate": "log-uniform [0.01, 0.1]",
+      "max_bins": "[256, 512]",
+      "outer_bags": "[8, 16]",
+      "inner_bags": "[0, 8]"
+    }
+  },
+  "final_best_hyperparameters_XGBoost_M2_Full": {
+    "learning_rate": 0.040331,
+    "max_depth": 3,
+    "reg_lambda": 13.057061,
+    "subsample": 0.972499,
+    "colsample_bytree": 0.979177
+  },
+  "note": "hyperparameters correspond to the last outer fold of the nested CV (train 2011-2021) and were used for the full-sample final models; per-fold hyperparameter records are not archived."
+}

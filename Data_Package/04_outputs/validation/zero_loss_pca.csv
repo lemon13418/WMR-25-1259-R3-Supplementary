@@ -1,0 +1,3 @@
+﻿variant,oof_rmse,oof_r2
+100%-variance PCA (10 components),0.12787075951950963,0.9363421429383667
+raw collinear features (benchmark OOF),0.12595522974575785,

@@ -1,0 +1,4 @@
+﻿variant,r2,rmse
+"baseline (451 rows, contemporaneous)",0.943019355032654,0.1215439894102571
+PolicyCount replaced by lag,0.9406409556313943,0.12405470973310025
+PublicAwarenessIndex replaced by lag,0.9448637418979954,0.11956070053558655

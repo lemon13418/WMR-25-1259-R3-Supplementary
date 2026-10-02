@@ -1,0 +1,3 @@
+﻿check,pass
+folds_definitions matches expanding-window derivation,True
+coordinates.csv covers all 41 cities in the residual set,True

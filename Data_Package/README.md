@@ -1,4 +1,4 @@
-﻿﻿# R3 Revision Package — WMR-25-1259
+# R3 Revision Package — WMR-25-1259
 
 ## Quick start
 - Back up your project first; the scripts below expect a **project root layout** identical to the

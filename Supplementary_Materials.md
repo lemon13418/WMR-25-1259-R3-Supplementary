@@ -1,14 +1,14 @@
 # Supplementary Materials
 ## S1. Evaluation protocols, transforms and consistency notes
 The benchmark tables in the main text use nested cross-validation (expanding-window outer folds testing 2018–2022) with out-of-fold ("OOF") predictions. RobustScaler and PCA are fitted on the first nine years (2011–2019) and applied to the full sample; outer test years 2018–2019 therefore fall inside the transform window. A sensitivity check re-fits the RobustScaler on a leave-one-test-year-out basis — i.e., on all rows other than the tested year, a superset of the expanding outer training windows — and retrains XGBoost M2-Full with fixed hyperparameters and no early stopping (n_estimators = 2000); the M2-Full configuration does not use PCA, so no PCA refit is involved (released script 10_diagnostics_supplement.py). Because the refit window includes post-test years, the check is a bounding exercise rather than a strictly leakage-free refit:
-| fold_test_year | r2_release | r2_published | delta |
+| fold_test_year | R²_release | R²_published | delta |
 |---|---|---|---|
 | 2018.0000 | 0.9664 | 0.9428 | 0.0236 |
 | 2019.0000 | 0.9571 | 0.9465 | 0.0106 |
 
 Fold-level R² changes (max 0.024) are unidirectional and small: the re-fitted specifications perform equal or slightly better on both tested years, which does not support the concern that the fixed window inflates the reported benchmark or biases the conclusions. Values are those produced by the released script; running under another xgboost version may move them at the third decimal (Reproducibility Note). Figure 2C presents a complementary component-count scan under repeated 5-fold cross-validation (10 dynamic features; PCA fitted on 2011–2019), a diagnostic protocol distinct from the OOF benchmark; the raw-feature baseline RMSE is 0.208 and PCA configurations range from 0.28 to 0.55. The 95% variance threshold is first exceeded at seven components (0.949 at six components, 0.973 at seven).
 Isolated transform-window check. The bounding check above changes two things at once (the scaler window and the rows used to train the model, which become a superset of the benchmark training windows). To isolate the pure transform-window effect, the released script 11_transform_window_isolated.py re-fits the RobustScaler only on the outer training years of each fold (2011–2017 for the 2018 test year, …, 2011–2021 for 2022) — a strictly leakage-free refit — while keeping the fold definitions, training rows, test rows, hyperparameters and stopping rule byte-identical to the benchmark OOF protocol; only the scaler fitting window changes. Because refitting a RobustScaler on a row subset of the raw features is affine-equivalent to recomputing the median and IQR of the released (already scaled) values on that same subset and re-standardising z′ = (z − med)/iqr per column, the check operates directly on final_dataset_lpc_robust_scaled.csv and requires no raw-value reconstruction (columns with zero within-window IQR are left unchanged, mirroring RobustScaler's scale = 1 convention):
-| fold_test_year | r2_fixed_window | r2_train_years_only | delta |
+| fold_test_year | R²_fixed_window | R²_train_years_only | delta |
 |---|---|---|---|
 | 2018 | 0.9438 | 0.9440 | 0.0003 |
 | 2019 | 0.9488 | 0.9488 | 0.0000 |
@@ -21,7 +21,7 @@ The absolute change never exceeds 0.0003 in R² (≤ 0.0004 in RMSE), three orde
 Missing-value audit. The three released datasets (merged_raw_data.csv, final_dataset_lpc_robust_scaled.csv, final_dataset_M2_PCA.csv) contain no missing values, and the defensive fill steps in feature_engineering.py alter no cell (imputation_audit.csv, produced by script 10). Imputation-based information leakage is therefore precluded by construction for the released panel. The isolated transform-window check (see above) is produced by script 11_transform_window_isolated.py.
 ## S2. Final model benchmark (OOF, 17 configurations, log-scale)
 Six model families were evaluated under three feature configurations (18 conceivable family–configuration combinations), of which 15 were estimated; 17 rows are reported because several models are listed with multiple encoding variants. EBM-M2-Full was not run (runtime considerations), and the M2-PCA configurations of the linear families (MLR, SVR) were not estimated; these three cells are reported as gaps rather than estimated values. All metrics are reported on the log-transformed target scale.
-| Algorithm | Feature set | Encoding | R2 | RMSE | MAE |
+| Algorithm | Feature set | Encoding | R² | RMSE | MAE |
 |---|---|---|---|---|---|
 | DNN | M2-PCA | Native | 0.8578 | 0.1911 | 0.1335 |
 | DNN | M1-Baseline | Native | 0.8433 | 0.2006 | 0.1454 |
@@ -56,14 +56,14 @@ MAPE = (1/n)·Σ|yᵢ − ŷᵢ| / yᵢ × 100%,  SMAPE = (1/n)·Σ|yᵢ − ŷ�
 For the panel diagnostics, residuals were computed with fixed hyperparameters and no early stopping (validation script 10_diagnostics_supplement.py); their yearly means can differ from the benchmark OOF file by up to ≈ 0.014 (e.g., 2019: −0.031 benchmark vs −0.017 diagnostic), a difference attributable to fitting rules, and is disclosed here explicitly.
 ## S4. Pandemic (2020) indicator test
 Panel fixed-effects OLS (city dummies + 2020 indicator + ten dynamic covariates):
-| item | coef | std_err | t | p | CI_low | CI_high | N | model_R2 |
+| item | coef | std_err | t | p | CI_low | CI_high | N | model_ R² |
 |---|---|---|---|---|---|---|---|---|
 | 2020 indicator (OLS, city FE + 10 covariates) | -0.0285 | 0.0213 | -1.3400 | 0.1808 | -0.0703 | 0.0133 | 492 | 0.9492 |
 
 In the XGBoost pipeline the marginal SHAP contribution of the 2020 indicator is ≈ 0.000 (about 1.4 × 10⁻⁵, computed with pred_contribs by script 10; xgb_2020_dummy_shap.csv): in the outer folds with test years 2018–2020 the indicator is constant zero within the training portion, while in the folds with test years 2021–2022 its training portions include 2020 and the indicator is exactly redundant with the Year identifier already in the feature set; no informative split on it can therefore be learned, and the 2020 anomaly is absorbed by the Year identifier; the anomaly is therefore attributed to the unmodeled COVID-19 shock (main text Section 3.3).
 ## S5. Blocking and baseline tests
 All robustness variants use the XGBoost M2-Full configuration with hyperparameters fixed to the nested-CV optimum and no early stopping. LOOCV trains on all cities except one and predicts that city across all years; the no-identifier model drops City and Year; the lagged-outcome baseline fits OLS of the target on its one-year lag with city fixed effects (in-sample persistence benchmark).
-| test | r2 | rmse |
+| test | R² | RMSE |
 |---|---|---|
 | LOOCV (41 cities) | -0.2035 | 0.5551 |
 | no City/Year IDs | 0.7748 | 0.2405 |
@@ -119,3 +119,10 @@ Pairwise Spearman rank correlations between windows:
 | 4 | fold5 | 0.600 | 0.709 | 0.903 | 0.952 | 1.000 |
 
 The top tier is stable and consistent with the full-sample ranking (Figure 5B): Energy Efficiency ranked first in every window, with Policy Count, Urbanization Level, and Economic Development Level following; pairwise Spearman correlations range from 0.60 to 0.95.
+## S8. Lag substitution of proxies
+One-year lagged versions were substituted (replacing, not adding to) ‘Government Attitude’ and ‘Public Environmental Awareness’, evaluated on the same 2012–2022 subset.
+| variant | R² | RMSE |
+|---|---|---|
+| baseline (451 rows, contemporaneous) | 0.9430 | 0.1215 |
+| Government Attitude replaced by lag | 0.9406 | 0.1241 |
+| Public Environmental Awareness replaced by lag | 0.9449 | 0.1196 |
